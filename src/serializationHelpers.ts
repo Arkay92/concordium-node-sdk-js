@@ -1,6 +1,9 @@
 import { Buffer } from 'buffer/';
+import { TextEncoder } from 'util';
 import { VerifyKey } from '.';
 import {
+    BakerKeysWithProofs,
+    ConfigureBakerPayload,
     ConfigureDelegationPayload,
     DelegationTarget,
     DelegationTargetType,
@@ -955,6 +958,60 @@ export function serializeConfigureDelegationPayload(
 ): Buffer {
     const bitmap = getSerializedConfigureDelegationBitmap(payload);
     const sPayload = serializeFromSpec(configureDelegationSerializationSpec)(
+        payload
+    );
+
+    return Buffer.concat([bitmap, sPayload]);
+}
+
+function encodeHexString(s: string): Buffer {
+    return Buffer.from(s, 'hex');
+}
+
+const serializeVerifyKeys = serializeFromSpec<BakerKeysWithProofs>({
+    electionVerifyKey: encodeHexString,
+    electionKeyProof: encodeHexString,
+    signatureVerifyKey: encodeHexString,
+    signatureKeyProof: encodeHexString,
+    aggregationVerifyKey: encodeHexString,
+    aggregationKeyProof: encodeHexString,
+});
+
+const serializeUrl = (url: string) => {
+    const data = Buffer.from(new TextEncoder().encode(url));
+    const length = encodeWord16(data.length);
+    return Buffer.concat([length, data]);
+};
+
+const configureBakerSerializationSpec: SerializationSpec<ConfigureBakerPayload> =
+    {
+        stake: orUndefined((v) => encodeWord64(v.microGtuAmount)),
+        restakeEarnings: orUndefined(encodeBool),
+        openForDelegation: orUndefined(encodeWord8),
+        keys: orUndefined(serializeVerifyKeys),
+        metadataUrl: orUndefined(serializeUrl),
+        transactionFeeCommission: orUndefined(encodeWord32),
+        bakingRewardCommission: orUndefined(encodeWord32),
+        finalizationRewardCommission: orUndefined(encodeWord32),
+    };
+
+export const getSerializedConfigureBakerBitmap = (
+    payload: ConfigureBakerPayload
+): Buffer =>
+    encodeWord16(
+        getPayloadBitmap(
+            payload,
+            Object.keys(configureBakerSerializationSpec) as Array<
+                keyof ConfigureBakerPayload
+            >
+        )
+    );
+
+export function serializeConfigureBakerPayload(
+    payload: ConfigureBakerPayload
+): Buffer {
+    const bitmap = getSerializedConfigureBakerBitmap(payload);
+    const sPayload = serializeFromSpec(configureBakerSerializationSpec)(
         payload
     );
 

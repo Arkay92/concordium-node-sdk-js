@@ -21,6 +21,7 @@ import {
     UpdateCredentialsPayload,
     RegisterDataPayload,
     ConfigureDelegationPayload,
+    ConfigureBakerPayload,
 } from './types';
 
 interface AccountTransactionHandler<
@@ -191,6 +192,22 @@ export class RegisterDataHandler
     }
 }
 
+export class ConfigureBakerHandler
+    implements AccountTransactionHandler<ConfigureBakerPayload>
+{
+    getBaseEnergyCost(payload: ConfigureBakerPayload): bigint {
+        if (payload.keys) {
+            return 4050n;
+        } else {
+            return 300n;
+        }
+    }
+
+    serialize(payload: ConfigureBakerPayload): Buffer {
+        return serializeConfigureDelegationPayload(payload);
+    }
+}
+
 export class ConfigureDelegationHandler
     implements AccountTransactionHandler<ConfigureDelegationPayload>
 {
@@ -230,6 +247,9 @@ export function getAccountTransactionHandler(
 export function getAccountTransactionHandler(
     type: AccountTransactionType.ConfigureDelegation
 ): ConfigureDelegationHandler;
+export function getAccountTransactionHandler(
+    type: AccountTransactionType.ConfigureBaker
+): ConfigureBakerHandler;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function getAccountTransactionHandler(type: AccountTransactionType) {
@@ -250,6 +270,8 @@ export function getAccountTransactionHandler(type: AccountTransactionType) {
             return new RegisterDataHandler();
         case AccountTransactionType.ConfigureDelegation:
             return new ConfigureDelegationHandler();
+        case AccountTransactionType.ConfigureBaker:
+            return new ConfigureBakerHandler();
         default:
             throw new Error(
                 'The provided type does not have a handler: ' + type
