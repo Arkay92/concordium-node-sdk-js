@@ -10,7 +10,7 @@ import {
     AccountAddress,
     CredentialRegistrationId as CredRegId,
 } from '@concordium/common-sdk';
-import { AccountIdentifierInputLocal } from './types';
+import { AccountIdentifierInput as AccountIdentifierInputLocal } from './types';
 
 export function intListToStringList(jsonStruct: string): string {
     return jsonStruct.replace(/(\-?[0-9]+)/g, '"$1"');
@@ -107,6 +107,29 @@ export function assertValidHash(hash: Uint8Array): void {
         throw new Error(
             'The input was not a valid hash, must be 32 bytes: ' +
                 Buffer.from(hash).toString('hex')
+        );
+    }
+}
+
+export function assertValidModuleRef(moduleRef: Uint8Array) {
+    if (moduleRef.length !== 32) {
+        throw new Error(
+            'The input was not a valid module reference, must be 32 bytes: ' +
+                Buffer.from(moduleRef).toString('hex')
+        );
+    }
+}
+
+export function assertAmount(amount: bigint) {
+    if (amount < 0n) {
+        throw new Error(
+            'A micro CCD amount must be a non-negative integer but was: ' +
+                amount
+        );
+    } else if (amount > 18446744073709551615n) {
+        throw new Error(
+            'A micro CCD amount must be representable as an unsigned 64 bit integer but was: ' +
+                amount
         );
     }
 }

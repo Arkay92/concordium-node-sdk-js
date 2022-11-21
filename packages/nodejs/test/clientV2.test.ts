@@ -5,7 +5,11 @@ import {
     AccountAddress,
     CredentialRegistrationId,
 } from '@concordium/common-sdk';
-import { AccountInfo, AccountStakingInfo } from '../grpc/v2/concordium/types';
+import {
+    AccountInfo,
+    BlockItemStatus,
+    AccountStakingInfo
+} from '../grpc/v2/concordium/types';
 
 /**
  * Creates a client to communicate with a local concordium-node
@@ -235,4 +239,25 @@ test('getAccountInfo: Account Address and CredentialRegistrationId is equal', as
     );
 
     expect(accountInfoAddress).toEqual(accountInfoCredId);
+})
+
+test('getBlockItemStatus', async () => {
+    const transactionHash = Buffer.from(
+        '3de823b876d05cdd33a311a0f84124079f5f677afb2534c4943f830593edc650',
+        'hex'
+    );
+    const blockItemStatus = await client.getBlockItemStatus(transactionHash);
+
+    const expectedBlockItemStatus = Buffer.from(
+        'GmwKagoiCiAtnhoIGBmtjb+B1aiC6i9TUss0KfwSsOwYwTGjYHUaZhJECgASABoiCiA96CO4dtBc3TOjEaD4QSQHn19nevslNMSUP4MFk+3GUDIaCgASFiIUChIIgICnqLnVuJL0ARDDqpuv4gQ=',
+        'base64'
+    );
+    expect(blockItemStatus).toEqual(
+        BlockItemStatus.fromBinary(expectedBlockItemStatus)
+    );
+});
+
+test('getConsensusInfo', async () => {
+    const consensusInfo = await client.getConsensusInfo();
+    console.log(consensusInfo);
 });
