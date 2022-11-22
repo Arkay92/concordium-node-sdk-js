@@ -8,8 +8,10 @@ import {
 import {
     AccountInfo,
     BlockItemStatus,
-    AccountStakingInfo
+    AccountStakingInfo,
+    InstanceInfo,
 } from '../grpc/v2/concordium/types';
+import { getModuleBuffer } from './testHelpers';
 
 /**
  * Creates a client to communicate with a local concordium-node
@@ -54,7 +56,7 @@ test('getCryptographicParameters', async () => {
     );
 });
 
-test('NextAccountSequenceNumber', async () => {
+test('getNextAccountSequenceNumber', async () => {
     const nextAccountSequenceNumber = await client.getNextAccountSequenceNumber(
         testAccount
     );
@@ -64,8 +66,11 @@ test('NextAccountSequenceNumber', async () => {
     expect(nextAccountSequenceNumber.allFinal).toBeDefined();
 });
 
-test('AccountInfo', async () => {
-    const accountInfo = await client.getAccountInfo(testAccount, testBlockHash);
+test('getAccountInfo', async () => {
+    const accountInfo = await client.getAccountInfo(
+        testAccount,
+        testBlockHash
+    );
 
     const expected = {
         sequenceNumber: {
@@ -277,4 +282,68 @@ test('getBlockItemStatus', async () => {
     };
 
     expect(BlockItemStatus.toJson(blockItemStatus)).toEqual(expected);
+});
+
+test('getInstanceInfo', async () => {
+    const contractAddress = {
+        index: 0n,
+        subindex: 0n,
+    };
+    const instanceInfo = await client.getInstanceInfo(
+        contractAddress,
+        testBlockHash
+    );
+
+    const expected = {
+        v1: {
+            owner: {
+                value: '0YBPp1cC7ISiGOEh3OLFvm9rCgolsXjymRwBmxeX1R4=',
+            },
+            amount: {},
+            methods: [
+                {
+                    value: 'weather.get',
+                },
+                {
+                    value: 'weather.set',
+                },
+            ],
+            name: {
+                value: 'init_weather',
+            },
+            sourceModule: {
+                value: 'Z9VoQzvXLkMmJB8mIhPXf0RtuLoD37o1GuNcGy5+UQk=',
+            },
+        },
+    };
+
+    expect(InstanceInfo.toJson(instanceInfo)).toEqual(expected);
+});
+
+test('getModuleSource', async () => {
+    const localModuleBytes = getModuleBuffer('test/resources/piggy_bank.wasm');
+    const moduleRef = Buffer.from(
+        'foOYrcQGqX202GnD/XrcgToxg2Z6On2weOuub33OX2Q=',
+        'base64'
+    );
+
+    const versionedModuleSource = await client.getModuleSource(
+        moduleRef,
+        testBlockHash
+    );
+
+    if (versionedModuleSource.module.oneofKind == 'v0') {
+        const localModuleHex = Buffer.from(localModuleBytes).toString('hex');
+        const chainModuleHex = Buffer.from(
+            versionedModuleSource.module.v0.value
+        ).toString('hex');
+
+        expect(localModuleHex).toEqual(chainModuleHex);
+    } else {
+        throw new Error('Expected module to have version 0, but it did not.');
+    }
+});
+
+test('invokeInstance', async () => {
+    throw new Error('Not implemented yet!');
 });

@@ -13,7 +13,10 @@ import {
     ContractAddress,
     InstanceInfo,
     InvokeInstanceResponse,
+    InstanceInfoRequest,
     Empty,
+    ModuleSourceRequest,
+    InvokeInstanceRequest,
 } from '../grpc/v2/concordium/types';
 import { QueriesClient } from '../grpc/v2/concordium/service.client';
 import { GrpcTransport } from '@protobuf-ts/grpc-transport';
@@ -146,14 +149,14 @@ export default class ConcordiumNodeClient {
     }
 
     async getModuleSource(
-        blockHash: Uint8Array,
-        moduleRef: Uint8Array
+        moduleRef: Uint8Array,
+        blockHash?: Uint8Array
     ): Promise<VersionedModuleSource> {
         const blockHashInput = getBlockHashInput(blockHash);
         assertValidModuleRef(moduleRef);
 
-        const moduleSourceRequest = {
-            blockHashInput: blockHashInput,
+        const moduleSourceRequest: ModuleSourceRequest = {
+            blockHash: blockHashInput,
             moduleRef: { value: moduleRef },
         };
 
@@ -161,13 +164,13 @@ export default class ConcordiumNodeClient {
     }
 
     async getInstanceInfo(
-        blockHash: Uint8Array,
-        contractAddress: ContractAddress
+        contractAddress: ContractAddress,
+        blockHash?: Uint8Array
     ): Promise<InstanceInfo> {
         const blockHashInput = getBlockHashInput(blockHash);
 
-        const instanceInfoRequest = {
-            blockHashInput: blockHashInput,
+        const instanceInfoRequest: InstanceInfoRequest = {
+            blockHash: blockHashInput,
             address: contractAddress,
         };
 
@@ -175,19 +178,19 @@ export default class ConcordiumNodeClient {
     }
 
     async invokeInstance(
-        blockHash: Uint8Array,
         instance: ContractAddress,
         amount: bigint,
         entrypoint: string,
         parameter: Uint8Array,
         energy: bigint,
-        invoker?: Address
+        invoker?: Address,
+        blockHash?: Uint8Array
     ): Promise<InvokeInstanceResponse> {
         const blockHashInput = getBlockHashInput(blockHash);
         assertAmount(amount);
 
-        const invokeInstanceRequest = {
-            blockHashInput: blockHashInput,
+        const invokeInstanceRequest: InvokeInstanceRequest = {
+            blockHash: blockHashInput,
             invoker: invoker,
             instance: instance,
             amount: { value: amount },
