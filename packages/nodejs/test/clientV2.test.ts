@@ -248,16 +248,33 @@ test('getBlockItemStatus', async () => {
     );
     const blockItemStatus = await client.getBlockItemStatus(transactionHash);
 
-    const expectedBlockItemStatus = Buffer.from(
-        'GmwKagoiCiAtnhoIGBmtjb+B1aiC6i9TUss0KfwSsOwYwTGjYHUaZhJECgASABoiCiA96CO4dtBc3TOjEaD4QSQHn19nevslNMSUP4MFk+3GUDIaCgASFiIUChIIgICnqLnVuJL0ARDDqpuv4gQ=',
-        'base64'
-    );
-    expect(blockItemStatus).toEqual(
-        BlockItemStatus.fromBinary(expectedBlockItemStatus)
-    );
-});
+    const expected = {
+        finalized: {
+            outcome: {
+                blockHash: {
+                    value: 'LZ4aCBgZrY2/gdWoguovU1LLNCn8ErDsGMExo2B1GmY=',
+                },
+                outcome: {
+                    index: {},
+                    energyCost: {},
+                    hash: {
+                        value: 'PegjuHbQXN0zoxGg+EEkB59fZ3r7JTTElD+DBZPtxlA=',
+                    },
+                    update: {
+                        effectiveTime: {},
+                        payload: {
+                            microCcdPerEuroUpdate: {
+                                value: {
+                                    numerator: '17592435270983729152',
+                                    denominator: '163844642115',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    };
 
-test('getConsensusInfo', async () => {
-    const consensusInfo = await client.getConsensusInfo();
-    console.log(consensusInfo);
+    expect(BlockItemStatus.toJson(blockItemStatus)).toEqual(expected);
 });

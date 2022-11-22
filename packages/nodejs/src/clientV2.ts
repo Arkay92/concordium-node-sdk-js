@@ -1,7 +1,5 @@
 import { ChannelCredentials, Metadata } from '@grpc/grpc-js';
-import {
-    AccountAddress as AccountAddressLocal,
-} from '@concordium/common-sdk';
+import { AccountAddress as AccountAddressLocal } from '@concordium/common-sdk';
 import {
     Address,
     AccountAddress,
@@ -15,11 +13,17 @@ import {
     ContractAddress,
     InstanceInfo,
     InvokeInstanceResponse,
-    Empty
+    Empty,
 } from '../grpc/v2/concordium/types';
 import { QueriesClient } from '../grpc/v2/concordium/service.client';
 import { GrpcTransport } from '@protobuf-ts/grpc-transport';
-import { getBlockHashInput, getAccountIdentifierInput, assertValidHash, assertValidModuleRef, assertAmount } from './util';
+import {
+    getBlockHashInput,
+    getAccountIdentifierInput,
+    assertValidHash,
+    assertValidModuleRef,
+    assertAmount,
+} from './util';
 import { AccountIdentifierInput as AccountIdentifierInputLocal } from './types';
 
 /**
