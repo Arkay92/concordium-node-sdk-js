@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.0 2022-11-15
+
+### Added
+- `serialize_credential_deployment_payload()`
+
 ## 0.7.0 2022-11-15
 
 ### Added

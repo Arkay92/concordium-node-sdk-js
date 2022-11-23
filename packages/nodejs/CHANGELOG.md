@@ -1,5 +1,20 @@
 # Changelog
 
+## 8.0.0
+
+### Added Changes
+- Added more GRPCv2 functions:
+    - `getNextAccountSequenceNumber()`
+    - `getAccountInfo()`
+    - `getBlockItemStatus()`
+    - `getConsensusInfo()`
+    - `getModuleSource()`
+    - `getInstanceInfo()`
+    - `invokeInstance()`
+    - `getAccountTransactionSignHash()`
+    - `sendAccountTransaction()`
+    - `sendCredentialDeploymentTransaction()`
+
 ## 7.0.0
 
 ### Added Changes

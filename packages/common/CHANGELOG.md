@@ -1,5 +1,13 @@
 # Changelog
 
+## 7.0.0
+
+### Added
+
+- Serialization:
+    - `serializeAccountTransactionPayload()`
+    - `serializeCredentialDeploymentPayload()`
+
 ## 6.0.0 2022-11-15
 
 ### Breaking changes

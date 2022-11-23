@@ -5,10 +5,12 @@ import {
     BlockHashInput,
     Empty,
     AccountIdentifierInput,
+    AccountTransactionSignature,
 } from '../grpc/v2/concordium/types';
 import {
     AccountAddress,
     CredentialRegistrationId as CredRegId,
+    AccountTransactionSignature as AccountTransactionSignatureLocal,
 } from '@concordium/common-sdk';
 import { AccountIdentifierInput as AccountIdentifierInputLocal } from './types';
 
@@ -79,6 +81,11 @@ export function getBlockHashInput(blockHash?: Uint8Array): BlockHashInput {
     return { blockHashInput: blockHashInput };
 }
 
+/**
+ * Gets an GRPCv2 AccountIdentifierInput from a GRPCv1 AccountIdentifierInput.
+ * @param accountIdentifier a GRPCv1 AccountIdentifierInput.
+ * @returns a GRPCv2 AccountIdentifierInput.
+ */
 export function getAccountIdentifierInput(
     accountIdentifier: AccountIdentifierInputLocal
 ): AccountIdentifierInput {
@@ -91,9 +98,8 @@ export function getAccountIdentifierInput(
         returnIdentifier.address = { value: address };
     } else if ((<CredRegId>accountIdentifier).credId !== undefined) {
         const credId = (<CredRegId>accountIdentifier).credId;
-        const credIdBytes = Buffer.from(credId, 'hex');
         returnIdentifier.oneofKind = 'credId';
-        returnIdentifier.credId = { value: credIdBytes };
+        returnIdentifier.credId = { value: Buffer.from(credId, 'hex') };
     } else {
         returnIdentifier.oneofKind = 'accountIndex';
         returnIdentifier.accountIndex = { value: accountIdentifier };
@@ -120,16 +126,28 @@ export function assertValidModuleRef(moduleRef: Uint8Array): void {
     }
 }
 
-export function assertAmount(amount: bigint): void {
-    if (amount < 0n) {
-        throw new Error(
-            'A micro CCD amount must be a non-negative integer but was: ' +
-                amount
-        );
-    } else if (amount > 18446744073709551615n) {
-        throw new Error(
-            'A micro CCD amount must be representable as an unsigned 64 bit integer but was: ' +
-                amount
-        );
+/**
+ * Gets an GRPCv2 AccountTransactionSignature from a GRPCv1 AccountTransactionSignature.
+ * @param accountIdentifier a GRPCv1 AccountTransactionSignature.
+ * @returns a GRPCv2 AccountTransactionSignature.
+ */
+export function translateSignature(
+    signature: AccountTransactionSignatureLocal
+): AccountTransactionSignature {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const accountTransactionSignature: any = { signatures: {} };
+
+    for (const i in signature) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const accountSignatureMap: any = { signatures: {} };
+
+        for (const j in signature[i]) {
+            accountSignatureMap.signatures[i] = {
+                value: Buffer.from(signature[i][j], 'hex'),
+            };
+        }
+        accountTransactionSignature.signatures[i] = accountSignatureMap;
     }
+
+    return accountTransactionSignature;
 }
