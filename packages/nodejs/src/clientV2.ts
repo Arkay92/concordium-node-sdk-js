@@ -388,4 +388,45 @@ export default class ConcordiumNodeClient {
         };
         return this.client.getFinalizedBlocks(Empty, options).responses;
     }
+
+    /**
+     * Waits until given transaction is finalized.
+     *
+     * @param transactionHash a transaction hash as a bytearray.
+     * @returns A blockhash as a byte array.
+     */
+    async waitForTransactionFinalization(
+        transactionHash: Uint8Array
+    ): Promise<Uint8Array> {
+        const abortController = new AbortController();
+        const blockStream = this.getFinalizedBlocks(abortController.signal);
+        let returnBlockHash = new Uint8Array();
+
+        for await (const block of blockStream) {
+            const response = await this.getBlockItemStatus(transactionHash);
+            if (
+                response.status.oneofKind === 'finalized' &&
+                block.hash !== undefined
+            ) {
+                const responseHash =
+                    response.status.finalized.outcome?.blockHash;
+
+                // Uint8Arrays doesn't have an `.equals()` method so it checks by reference,
+                // which will always return false in this case
+                if (
+                    responseHash?.value.toString() ===
+                    block.hash.value.toString()
+                ) {
+                    returnBlockHash = block.hash?.value;
+                    break;
+                }
+            }
+        }
+
+        // Simply doing `abortController.abort()` causes an error.
+        // See: https://github.com/grpc/grpc-node/issues/1652
+        setImmediate(() => abortController.abort());
+
+        return returnBlockHash;
+    }
 }

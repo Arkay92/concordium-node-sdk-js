@@ -453,3 +453,59 @@ test('getFinalizedBlocks', async () => {
 
     ac.abort();
 }, 30000);
+
+// Sometimes fails as there is no guarantee that a new block comes within 30 seconds,
+// although one usually does
+test('waitForTransactionFinalization', async () => {
+    const senderAccount = new AccountAddress(
+        '39zbDo5ycLdugboskzUqjme8uNnDFfAYdyAYB9csegQJ2BqLoe'
+    );
+    const privateKey =
+        'dcf347bda4fc45a4318c98e80b0939c83cb6a368e84e791f88f618cace4c3c41';
+    const sequenceNumber = (
+        await client.getNextAccountSequenceNumber(senderAccount)
+    ).sequenceNumber;
+    if (sequenceNumber?.value === undefined) {
+        throw Error('Failed getting next sequence number!');
+    }
+
+    // Create local transaction
+    const header: AccountTransactionHeaderLocal = {
+        expiry: new TransactionExpiry(new Date(Date.now() + 3600000)),
+        nonce: sequenceNumber.value,
+        sender: senderAccount,
+    };
+    const simpleTransfer: SimpleTransferPayload = {
+        amount: new CcdAmount(100n),
+        toAddress: testAccount,
+    };
+    const accountTransaction: AccountTransactionLocal = {
+        header: header,
+        payload: simpleTransfer,
+        type: AccountTransactionType.Transfer,
+    };
+
+    // Sign transaction
+    const signer = buildBasicAccountSigner(privateKey);
+    const signature: AccountTransactionSignatureLocal = await signTransaction(
+        accountTransaction,
+        signer
+    );
+
+    const transactionHash = await client.sendAccountTransaction(
+        accountTransaction,
+        signature
+    );
+
+    const blockHash = await client.waitForTransactionFinalization(
+        transactionHash
+    );
+
+    expect(blockHash).toBeDefined();
+
+    console.log(blockHash);
+    console.log(
+        'The blockHash exists and I can do stuff with it. The blockHash in base64:',
+        Buffer.from(blockHash).toString('base64')
+    );
+}, 750000);
