@@ -33,6 +33,7 @@ import {
     AccountTransactionHeader,
     AccountTransaction,
     CredentialDeployment,
+    FinalizedBlockInfo,
 } from '../grpc/v2/concordium/types';
 import { QueriesClient } from '../grpc/v2/concordium/service.client';
 import { GrpcTransport } from '@protobuf-ts/grpc-transport';
@@ -45,6 +46,7 @@ import {
 } from './util';
 import { AccountIdentifierInput as AccountIdentifierInputLocal } from './types';
 import { countSignatures } from '@concordium/common-sdk/src/util';
+import type { RpcOutputStream } from '@protobuf-ts/runtime-rpc';
 
 /**
  * A concordium-node specific gRPC client wrapper.
@@ -89,7 +91,7 @@ export default class ConcordiumNodeClient {
         const grpcTransport = new GrpcTransport({
             host: `${address}:${port}`,
             channelCredentials: credentials,
-            options: options,
+            clientOptions: options,
         });
 
         this.address = address;
@@ -368,5 +370,22 @@ export default class ConcordiumNodeClient {
         const response = await this.client.sendBlockItem(sendBlockItemRequest)
             .response;
         return response.value;
+    }
+
+    /**
+     * Gets a stream of finalized blocks.
+     *
+     * @param abortSignal an AbortSignal to close the stream. Note that the
+     * stream does not close itself as it is infinite, so usually you'd want
+     * to provide this parameter.
+     * @returns An AsyncIterator stream of finalized blocks.
+     */
+    getFinalizedBlocks(
+        abortSignal?: AbortSignal
+    ): RpcOutputStream<FinalizedBlockInfo> {
+        const options = {
+            abort: abortSignal,
+        };
+        return this.client.getFinalizedBlocks(Empty, options).responses;
     }
 }

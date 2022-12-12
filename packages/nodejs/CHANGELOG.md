@@ -1,5 +1,9 @@
 # Changelog
 
+## 9.0.0
+
+- Added `getFinalizedBlocks()` GRPCv2 function.
+
 ## 8.0.0
 
 ### Added Changes

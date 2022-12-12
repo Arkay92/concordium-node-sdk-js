@@ -198,3 +198,35 @@ const blockHash = Buffer.from('fe88ff35454079c3df11d8ae13d5777babd61f28be58494ef
 const moduleRef = Buffer.from('7e8398adc406a97db4d869c3fd7adc813a3183667a3a7db078ebae6f7dce5f64', 'hex');
 const source = await client.getModuleSource(moduleReference, blockHash);
 ```
+
+## getFinalizedBlockStream
+Returns a stream of finalized blocks that is iterable. The following code will recieved blocks
+as long as there is a connection to the node:
+
+```js
+// Create stream
+const blockStream = client2.getFinalizedBlocks();
+
+// Prints blocks infinitely
+for await (const block of blockStream) {
+    console.log(block)
+}
+```
+
+You can pass it an abort signal to close the connection. This is particurlary useful for this
+function as it otherwise continues forever. An example of how to use `AbortSignal` can be seen below:
+
+```js
+// Create abort controller and block stream
+const ac = new AbortController();
+const blockStream = client2.getFinalizedBlocks(ac.signal);
+
+// Only get one item then break
+for await (const msg of blockStream) {
+    console.log(msg)
+    break
+}
+
+// Closes the stream
+ac.abort();
+```

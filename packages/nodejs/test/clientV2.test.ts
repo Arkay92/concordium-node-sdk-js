@@ -38,6 +38,7 @@ import { getModuleBuffer, getIdentityInput } from './testHelpers';
 import * as ed from '@noble/ed25519';
 import { serializeAccountTransaction } from '@concordium/common-sdk/lib/serialization';
 import * as expected from './resources/expectedJsons';
+//import AbortController from "abort-controller"
 
 /**
  * Creates a client to communicate with a local concordium-node
@@ -438,3 +439,17 @@ test('createAccount', async () => {
         '3 INVALID_ARGUMENT: The credential deployment was expired'
     );
 });
+
+// Sometimes fails as there is no guarantee that a new block comes within 30 seconds,
+// although one usually does
+test('getFinalizedBlocks', async () => {
+    const ac = new AbortController();
+    const client2 = getNodeClient();
+    const blockStream = client2.getFinalizedBlocks(ac.signal);
+    const nextBlock = await blockStream[Symbol.asyncIterator]().next();
+    const height = await nextBlock.value.height.value;
+
+    expect(height).toBeGreaterThan(1553503n);
+
+    ac.abort();
+}, 30000);
