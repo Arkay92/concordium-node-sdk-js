@@ -1,10 +1,11 @@
 # Changelog
 
-## 9.0.0
+## 6.4.0
 
 - Added `getFinalizedBlocks()` GRPCv2 function.
+- Added public helper function `waitForTransactionFinalization()`
 
-## 8.0.0
+## 6.3.0
 
 ### Added Changes
 - Added more GRPCv2 functions:

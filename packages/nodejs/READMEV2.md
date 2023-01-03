@@ -230,3 +230,18 @@ for await (const msg of blockStream) {
 // Closes the stream
 ac.abort();
 ```
+
+### waitForTransactionFinalization
+This function waits for the given transaction hash (given as a buffer) to finalize and then returns
+the blockhash of the block that contains given transaction as a buffer.
+
+```js
+const transactionHash = await client.sendAccountTransaction(
+    someTransaction,
+    signature
+);
+
+const blockHash = await client.waitForTransactionFinalization(
+    transactionHash
+);
+```

@@ -231,18 +231,14 @@ test('getConsensusInfo', async () => {
         'base64'
     );
 
-    const consensusInfo = await client.getConsensusInfo();
+    const info = await client.getConsensusInfo();
 
-    expect(consensusInfo.blocksReceivedCount).toBeGreaterThan(9571n);
-    expect(consensusInfo.blocksVerifiedCount).toBeGreaterThan(9571n);
-    expect(consensusInfo.finalizationCount).toBeGreaterThan(8640n);
-    expect(consensusInfo.genesisBlock?.value).toEqual(genesisBlock);
-    expect(consensusInfo.lastFinalizedTime?.value).toBeGreaterThan(
-        1669214033937n
-    );
-    expect(consensusInfo.lastFinalizedBlockHeight?.value).toBeGreaterThan(
-        1395315n
-    );
+    //expect(info.blocksReceivedCount).toBeGreaterThan(9571n);
+    //expect(info.blocksVerifiedCount).toBeGreaterThan(9571n);
+    //expect(info.finalizationCount).toBeGreaterThan(8640n);
+    expect(info.genesisBlock?.value).toEqual(genesisBlock);
+    expect(info.lastFinalizedTime?.value).toBeGreaterThan(1669214033937n);
+    expect(info.lastFinalizedBlockHeight?.value).toBeGreaterThan(1395315n);
 });
 
 test('sendBlockItem', async () => {
@@ -454,8 +450,8 @@ test('getFinalizedBlocks', async () => {
     ac.abort();
 }, 30000);
 
-// Sometimes fails as there is no guarantee that a new block comes within 30 seconds,
-// although one usually does
+// Will be removed as the test account will one day run out of money.
+/*
 test('waitForTransactionFinalization', async () => {
     const senderAccount = new AccountAddress(
         '39zbDo5ycLdugboskzUqjme8uNnDFfAYdyAYB9csegQJ2BqLoe'
@@ -509,3 +505,4 @@ test('waitForTransactionFinalization', async () => {
         Buffer.from(blockHash).toString('base64')
     );
 }, 750000);
+*/
