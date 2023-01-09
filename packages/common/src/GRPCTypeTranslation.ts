@@ -1,7 +1,8 @@
-import * as v1 from '@concordium/common-sdk';
-import * as v2 from '../grpc/v2/concordium/types';
+import * as v1 from './types';
+import * as v2 from '../../nodejs/grpc/v2/concordium/types';
 import { mapRecord, unwrap } from './util';
 import { Buffer } from 'buffer/';
+import { AccountAddress } from './types/accountAddress';
 
 function unwrapToHex(x: Uint8Array | undefined): string {
     return Buffer.from(unwrap(x)).toString('hex');
@@ -255,7 +256,7 @@ export function accountInfo(acc: v2.AccountInfo): v1.AccountInfo {
         schedule: unwrap(acc.schedule?.schedules).map(transRelease),
     };
     const accInfoCommon: v1.AccountInfoSimple = {
-        accountAddress: v1.AccountAddress.fromBytes(accAdrRaw).address,
+        accountAddress: AccountAddress.fromBytes(accAdrRaw).address,
         accountNonce: unwrap(acc.sequenceNumber?.value),
         accountAmount: unwrap(acc.amount?.value),
         accountIndex: unwrap(acc.index?.value),
