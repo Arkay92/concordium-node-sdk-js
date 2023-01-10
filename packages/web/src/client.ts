@@ -1,6 +1,5 @@
-import { ChannelCredentials } from '@grpc/grpc-js';
 import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
-import ConcordiumGRPCClient from '@concordium/common-sdk/lib/GRPCClient';
+import { ConcordiumGRPCClient } from '@concordium/common-sdk';
 
 /**
  * Initialize a gRPC client for a specific concordium node.
@@ -10,17 +9,15 @@ import ConcordiumGRPCClient from '@concordium/common-sdk/lib/GRPCClient';
  * @param timeout milliseconds to wait before timing out
  * @param options optional options for the P2PClient
  */
-export default function createConcordiumClient(
+export function createConcordiumClient(
     address: string,
     port: number,
-    credentials: ChannelCredentials,
     timeout: number,
     options?: Record<string, unknown>
 ): ConcordiumGRPCClient {
     const transport = new GrpcWebFetchTransport({
         baseUrl: `${address}:${port}`,
-        channelCredentials: credentials,
-        options: options,
+        options,
     });
     return new ConcordiumGRPCClient(timeout, transport);
 }

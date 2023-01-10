@@ -50,6 +50,7 @@ export { isHex } from './util';
 export { HttpProvider } from './providers/httpProvider';
 export { JsonRpcClient } from './JsonRpcClient';
 export * from './identity';
+export {default as ConcordiumGRPCClient} from './GRPCClient';
 
 export { getAccountTransactionHandler } from './accountTransactions';
 export { calculateEnergyCost } from './energyCost';
