@@ -484,7 +484,15 @@ export function serializeUpdateContractParameters(
         schemaVersion
     );
     try {
-        return Buffer.from(serializedParameters, 'hex');
+        const bufferOutput = Buffer.from(serializedParameters, 'hex');
+        
+        if(Buffer.byteLength(bufferOutput) === 0) {
+            throw new Error(
+                'Failure to parse input parameters: ' + serializedParameters
+            ); 
+        } 
+
+        return bufferOutput;
     } catch (e) {
         throw new Error(
             'unable to deserialize parameters, due to: ' + serializedParameters
